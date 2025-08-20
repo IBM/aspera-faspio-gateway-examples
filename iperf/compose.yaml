@@ -1,0 +1,39 @@
+services:
+  iperf-client:
+    build:
+      context: iperf3
+    volumes:
+      - ./iperf-client.sh:/iperf-client.sh
+      - ./logs:/tmp/logs
+    entrypoint: /iperf-client.sh
+    command: ${CLIENT_ARGS:-}
+    environment:
+      - IPERF_HOST=${IPERF_HOST:-gateway1}
+    restart: no
+    depends_on:
+      - gateway1
+  gateway1:
+    image: icr.io/ibm-aspera/faspio-gateway
+    volumes:
+      - ./gateway1:/etc/faspio-gateway
+      - ./logs:/tmp/logs
+    restart: always
+    depends_on:
+      - gateway2
+  gateway2:
+    image: icr.io/ibm-aspera/faspio-gateway
+    volumes:
+      - ./gateway2:/etc/faspio-gateway
+      - ./logs:/tmp/logs
+    restart: always
+    depends_on:
+      - iperf-server
+  iperf-server:
+    build:
+      context: iperf3
+      dockerfile: Dockerfile
+    volumes:
+      - ./iperf-server.sh:/iperf-server.sh
+      - ./logs:/tmp/logs
+    entrypoint: /iperf-server.sh
+    restart: always

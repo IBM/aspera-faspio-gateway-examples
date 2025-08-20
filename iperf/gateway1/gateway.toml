@@ -1,0 +1,15 @@
+[general]
+    logging_config = "/etc/faspio-gateway/logging.toml"
+
+[[bridge]]
+    name = "iperf3"
+
+    [bridge.local]
+        protocol = "tcp"
+        bind_address = "0.0.0.0"
+        port = "5201"
+
+    [bridge.forward]
+        protocol = "fasp"
+        host = "gateway2"
+        port = "5201"

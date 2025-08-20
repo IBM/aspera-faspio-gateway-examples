@@ -30,9 +30,21 @@ The IBM Aspera faspio Gateway is a high-performance networking solution that ena
 - Maintains standard FTP client compatibility
 - Easy integration with existing FTP workflows
 
-## Coming Soon
+### 📊 [iperf3 Performance Testing](./iperf/)
 
-- **iperf3 Demo** - How to test & troubleshoot a faspio Gateway setup with iperf3
+**Use Case:** Performance testing and network troubleshooting with iperf3 over FASP tunnels
+
+**What it demonstrates:**
+- Complete iperf3-over-FASP tunnel setup using Docker
+- Performance testing through FASP gateways vs direct connections
+- Network throughput measurement and comparison
+- Gateway configuration for TCP performance testing
+
+**Key benefits:**
+- Easy performance benchmarking of FASP tunnel setups
+- Network troubleshooting capabilities
+- Side-by-side comparison of direct vs tunneled performance
+- Simple Docker-based test environment
 
 ## Support and Contribution
 
