@@ -1,0 +1,16 @@
+#######################
+## GATEWAY SETTINGS
+#######################
+[general]
+    logging_config = "/etc/faspio-gateway/logging.toml"
+
+[[bridge]]
+        name = "FTP"
+    [bridge.local]
+        protocol = "fasp"
+        bind_address = "0.0.0.0"
+            port = "21-22"
+    [bridge.forward]
+        protocol = "tcp"
+            host = "server"
+            port = "21-22"

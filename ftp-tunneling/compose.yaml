@@ -1,0 +1,86 @@
+# FTP Tunneling over FASP Demo
+# This setup demonstrates FTP traffic being tunneled through FASP protocol
+
+services:
+  # Test Client: Generates files, downloads via tunnel, verifies integrity
+  client:
+    build:
+      context: ./client
+    image: ftp-client
+    depends_on:
+      gw1:
+        condition: service_healthy
+    environment:
+      FTP_USER: ${FTP_USER:-myuser}
+      FTP_PASS: ${FTP_PASS:-mypass}
+      FTP_HOST: ${FTP_HOST:-gw1}
+      FILE_SIZE_MB: ${FILE_SIZE_MB:-10}
+    volumes:
+      - data:/data
+      - ./logs:/var/log
+
+  # Client-side Gateway: Accepts FTP connections and tunnels over FASP
+  gw1:
+    image: icr.io/ibm-aspera/faspio-gateway
+    volumes:
+      - ./gw1:/etc/faspio-gateway
+      - ./logs:/tmp/logs
+    expose:
+      - "21-22"
+    restart: unless-stopped
+    depends_on:
+      gw2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -e /proc/1 && cat /proc/1/comm | grep -q 'faspio-gateway'"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Server-side Gateway: Receives FASP and forwards to FTP server
+  gw2:
+    image: icr.io/ibm-aspera/faspio-gateway
+    volumes:
+      - ./gw2:/etc/faspio-gateway
+      - ./logs:/tmp/logs
+    expose:
+      - "21-22"
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -e /proc/1 && cat /proc/1/comm | grep -q 'faspio-gateway'"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # FTP Server: vsftpd server for testing
+  server:
+    image: fauria/vsftpd
+    environment:
+      FTP_USER: ${FTP_USER:-myuser}
+      FTP_PASS: ${FTP_PASS:-mypass}
+      PASV_MIN_PORT: 22
+      PASV_MAX_PORT: 22
+      PASV_ADDRESS: server
+      PASV_ADDR_RESOLVE: "YES"
+      PASV_PROMISCUOUS: "YES"
+      PORT_PROMISCUOUS: "YES"
+      LOG_STDOUT: "YES"
+    volumes:
+      - data:/home/vsftpd
+      - ./logs:/var/log/vsftpd
+    expose:
+      - "21-22"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -q '[v]sftpd' || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+volumes:
+  data:  # Shared storage for test files

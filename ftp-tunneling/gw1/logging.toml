@@ -1,0 +1,68 @@
+#######################
+### LOGGING SETTINGS
+#######################
+
+# Available Loggers:
+#
+# gateway       High-level logger for the gateway
+# s2s           Stream-2-Stream session class logger
+# faspio-cpp   Logger for the Asio/C++ FASP SDK
+# faspio-c     Logger for the FASP protocol
+
+# For more on how to configure logging, see full reference at: https://github.com/guangie88/spdlog_setup
+
+# level is optional for both sinks and loggers
+# level for error logging is 'err', not 'error'
+# _st => single threaded, _mt => multi threaded
+# syslog_sink is automatically thread-safe by default, no need for _mt suffix
+
+# check out https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
+global_pattern = "[%Y-%m-%d %T.%e] [%=11n] [%^%L%$] [%s:%#] %v"
+
+# sync
+[global_thread_pool]
+queue_size = 8192
+num_threads = 1
+
+[[sink]]
+name = "console"
+type = "color_stdout_sink_mt"
+level = "trace"
+
+[[sink]]
+name = "logfile_err"
+type = "basic_file_sink_mt"
+filename = "/tmp/logs/gateway1_err.log"
+truncate = true
+level = "err"
+
+[[sink]]
+name = "logfile"
+type = "basic_file_sink_mt"
+filename = "/tmp/logs/gateway1.log"
+truncate = true
+level = "info"
+
+[[logger]]
+name = "gateway"
+type = "async"
+sinks = ["console", "logfile", "logfile_err"]
+level = "info"
+
+[[logger]]
+name = "s2s"
+type = "async"
+sinks = ["console", "logfile", "logfile_err"]
+level = "warn"
+
+[[logger]]
+name = "faspio-cpp"
+type = "async"
+sinks = ["console", "logfile", "logfile_err"]
+level = "info"
+
+[[logger]]
+name = "faspio-c"
+type = "async"
+sinks = ["console", "logfile", "logfile_err"]
+level = "warn"
